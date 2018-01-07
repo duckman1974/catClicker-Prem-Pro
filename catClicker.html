@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+  </head>
+
+  <body>
+    <ul id="cat-list"></ul>
+    <div id="cat">
+      <h1 id="cat-name"></h1>
+      <div id="cat-count"></div>
+      <img id="cat-image" src="" width="400" length="400">
+    </div>
+    <div id="adminButton">
+      <button id="admin-btn">Admin</button><br>
+    </div>
+    <form id="admin-form" class="admin-form">
+      <label for="name">New Cat Name: </label><input type="text" id="catName" value=""><br>
+      <label for="url">New Cat Link: </label><input type="text" id="catUrl" value=""><br>
+      <label for="clicks">New Cat Click Count: </label><input type="text" id="catClicks" value=""><br>
+      <button id="cancel-btn">Cancel</button>
+      <button id="save-btn">Save</button>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="js/jsScript.js"></script>
+  </body>
+</html>
