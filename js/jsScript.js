@@ -1,195 +1,199 @@
-/* ======= Model ======= */
+$(function() {
 
-var model = {
-    currentCat: null,
-    cats: [
-        {
-            clickCount : 0,
-            name : 'Kevin',
-            imgSrc : 'img/kitten.jpg'
-        },
-        {
-            clickCount : 0,
-            name : 'Candice',
-            imgSrc : 'img/secondCat.jpg'
-        },
-        {
-            clickCount : 0,
-            name : 'Natalie',
-            imgSrc : 'img/3rdCat.jpg'
-        },
-        {
-            clickCount : 0,
-            name : 'Cassidy',
-            imgSrc : 'img/4thCat.jpg'
-        }
-    ]
-};
+	var model = {
+		cats : [
+			{
+				name: "Kevin",
+				pic: "img/kitten.jpg",
+				clicks: 0
+			},
+			{
+				name: "Candice" ,
+				pic: "img/secondCat.jpg",
+				clicks: 0
+			},
+			{
+				name: "Natalie",
+				pic: "img/3rdCat.jpg",
+				clicks: 0
+			},
+			{
+				name: "Cassidy",
+				pic: "img/4thCat.jpg",
+				clicks: 0
+			}
+		],
+		admin: false
+	};
 
+	var octopus = {
+		setCatID: function() {
+			model.cats.forEach(function(cat, index) {
+				cat.id = index;
+			});
+		},
 
-/* ======= Octopus ======= */
+		getAllCats : function() {
+			return model.cats;
+		},
 
-var octopus = {
+		selectCat: function(cat) {
+			this.currentCat = model.cats[cat.id];
+			displayView.render();
+			adminView.render();
+		},
 
-    init: function() {
-        // set our current cat to the first one in the list
-        model.currentCat = model.cats[0];
-        model.admin = false;
+		getSelectedCat: function() {
+			return this.currentCat;
+		},
 
-        // tell our views to initialize
-        catListView.init();
-        catView.init();
-        adminView.init();
-    },
+		addClicks: function(id) {
+			model.cats[id].clicks++;
+			displayView.render();
+			adminView.render();
+		},
 
-    getCurrentCat: function() {
-        return model.currentCat;
-    },
+		toggleAdmin: function() {
+			if (model.admin) {
+				model.admin = false;
+			} else {
+				model.admin = true;
+			};
+			adminView.render();
+		},
 
-    getCats: function() {
-        return model.cats;
-    },
+		adminMode: function() {
+			return model.admin;
+		},
 
-    // set the currently-selected cat to the object passed in
-    setCurrentCat: function(cat) {
-        model.currentCat = cat;
-    },
+		update: function() {
+			//Get values from inputs
+			var name = $('#name').val();
+			var pic = $('#imageURL').val();
+			var clicks = $('#clicks').val();
 
-    // increments the counter for the currently-selected cat
-    incrementCounter: function() {
-        model.currentCat.clickCount++;
-        catView.render();
-    }
+			var id = this.currentCat.id
+			//Change the model for the current cat
+			model.cats[id].name = name;
+			model.cats[id].pic = pic;
+			model.cats[id].clicks = clicks;
 
+			this.toggleAdmin(); //turn off Admin mode
+			$('.cat-list').empty();
+			listView.render();
+			displayView.render();
+		},
 
-};
+		init : function() {
+			this.setCatID();
+			this.currentCat = model.cats[0];
 
+			listView.init();
+			displayView.init();
+			adminView.init();
+		}
 
-/* ======= View ======= */
+	}
 
-var adminView = {
+	var listView = {
+		init: function() {
+			this.$listView = $('.list-view'); //the list-view div
+			this.catTemplate = $('script[data-template="cat-link"]').html(); //list item
+			this.catList = $('<ul class="cat-list"></ul>');
 
-    init : function() {
+			this.$listView.on('click', 'a', function() {
+				var cat = $(this).parents().data();
+				octopus.selectCat(cat);
+			});
 
-      // this.newCatNameElem = document.getElementById("catName");
-      // this.newCatUrlElem = document.getElementById("catUrl");
-      // this.newCatClicksElem = document.getElementById("catClicks");
-      this.adminBtn = document.getElementById("admin-btn");
-      this.cancelBtn = document.getElementById("cancel-btn");
-      this.saveBtn = document.getElementById("save-btn");
+			this.render();
+		},
 
-      //form initially hides.  will need to show when admin button clicked
-      $('#admin-form').hide();
+		render: function() {
+			// Cache vars for use in forEach() callback
+			var $listView = this.$listView,
+				catTemplate = this.catTemplate,
+				catList = this.catList;
 
-      // admin form click listener
-      this.adminBtn.addEventListener('click', function() {
-        $('#admin-form').show();
+			octopus.getAllCats().forEach(function(cat) {
+				var thisTemplate = catTemplate
+				.replace(/{{id}}/, cat.id)
+				.replace(/{{name}}/, cat.name);
+				catList.append(thisTemplate);
+				return false;
+			});
+			$listView.html(catList);
+		}
+	};
 
-        // var currentCatName = currentCatObj.name;
-        // var currentCatLink = currentCatObj.imgSrc;
-        // var currentCatCount = currentCatObj.clickCount;
-      });
+	var displayView = {
+		init: function() {
+			this.$displayArea = $('.display-area'); //div
+			this.displayTemplate = $('script[data-template="display-area"]').html();
 
-      // cancel button click listener
-      this.cancelBtn.addEventListener('click', function() {
-        $('#admin-form').hide();
-      });
+			this.$displayArea.on('click', 'img', function() {
+				var id = $(this).parents().data("id");
+				octopus.addClicks(id);
+			})
 
-      // save button click listener
-      var that = this;
+			this.render();
+		},
 
-      this.saveBtn.addEventListener('click', function() {
-        var newCat = document.getElementById('catName').value;
-        var newUrl = document.getElementById('catUrl').value;
-        var newClicks = document.getElementById('catClicks').value;
-        var currentCatObj = octopus.getCurrentCat();
-        currentCatObj.name = newCat;
-        if (newUrl != null) {
-          currentCatObj.imgSrc = newUrl;
-        }
-        else {
-          currentCatObj.imgSrc = currentCatObj.imgSrc;
-        }
-        currentCatObj.clickCount = newClicks;
-        console.log(currentCatObj);
-        //
-        catView.render();
-        // catListView.render();
-        // $('admin-form').hide();
-      });
-    }
+		render: function() {
+			var $displayArea = this.$displayArea, //div
+				displayTemplate = this.displayTemplate;
 
-};
+			var thisCat = octopus.getSelectedCat();
+			var thisTemplate =
+				displayTemplate
+				.replace(/{{id}}/, thisCat.id)
+				.replace(/{{name}}/g, thisCat.name)
+				.replace(/{{pic}}/g, thisCat.pic)
+				.replace(/{{clicks}}/g, thisCat.clicks);
+			$displayArea.html(thisTemplate);
 
-var catView = {
+		}
+	};
 
-    init: function() {
-        // store pointers to our DOM elements for easy access later
-        this.catElem = document.getElementById('cat');
-        this.catNameElem = document.getElementById('cat-name');
-        this.catImageElem = document.getElementById('cat-image');
-        this.countElem = document.getElementById('cat-count');
+	var adminView = {
+		init: function() {
+			this.$admin = $('.admin'); //Admin Div
+			this.$adminBtn = $('.admin-btn') //Admin Button
+			this.adminForm = $('.admin-form'); //Admin Form
 
-        // on click, increment the current cat's counter
-        this.catImageElem.addEventListener('click', function(){
-            octopus.incrementCounter();
-        });
+			this.$adminBtn.click(function() {
+				octopus.toggleAdmin();
+			});
 
-        // render this view (update the DOM elements with the right values)
-        this.render();
-    },
+			$('.save-btn').click(function() {
+				octopus.update();
+			});
 
-    render: function() {
-        // update the DOM elements with values from the current cat
-        var currentCat = octopus.getCurrentCat();
-        this.countElem.textContent = currentCat.clickCount;
-        this.catNameElem.textContent = currentCat.name;
-        this.catImageElem.src = currentCat.imgSrc;
-    }
-};
+			$('.cancel-btn').click(function() {
+				octopus.toggleAdmin();
+			});
 
-var catListView = {
+			this.render();
+		},
 
-    init: function() {
-        // store the DOM element for easy access later
-        this.catListElem = document.getElementById('cat-list');
+		render: function() {
+			var admin = this.$admin,
+				form = this.adminForm;
 
-        // render this view (update the DOM elements with the right values)
-        this.render();
-    },
+			var cat = octopus.getSelectedCat();
 
-    render: function() {
-        var cat, elem, i;
-        // get the cats we'll be rendering from the octopus
-        var cats = octopus.getCats();
+			$('#name').val(cat.name);
+			$('#imageURL').val(cat.pic);
+			$('#clicks').val(cat.clicks);
 
-        // empty the cat list
-        this.catListElem.innerHTML = '';
+			if (octopus.adminMode()) {
+				form.show();
+			} else {
+				form.hide();
+			}
 
-        // loop over the cats
-        for (i = 0; i < cats.length; i++) {
-            // this is the cat we're currently looping over
-            cat = cats[i];
+		}
+	};
 
-            // make a new cat list item and set its text
-            elem = document.createElement('li');
-            elem.textContent = cat.name;
-
-            // on click, setCurrentCat and render the catView
-            // (this uses our closure-in-a-loop trick to connect the value
-            //  of the cat variable to the click event function)
-            elem.addEventListener('click', (function(catCopy) {
-                return function() {
-                    octopus.setCurrentCat(catCopy);
-                    catView.render();
-                };
-            })(cat));
-
-            // finally, add the element to the list
-            this.catListElem.appendChild(elem);
-        }
-    }
-};
-
-// make it go!
-octopus.init();
+	octopus.init();
+});

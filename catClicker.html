@@ -1,28 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
 
-  </head>
+<head>
+	<meta charset="utf-8">
+	<title>Cat Clicker</title>
+	<meta name="viewport" content="width=device-width">
+</head>
 
-  <body>
-    <ul id="cat-list"></ul>
-    <div id="cat">
-      <h1 id="cat-name"></h1>
-      <div id="cat-count"></div>
-      <img id="cat-image" src="" width="400" length="400">
-    </div>
-    <div id="adminButton">
-      <button id="admin-btn">Admin</button><br>
-    </div>
-    <form id="admin-form" class="admin-form">
-      <label for="name">New Cat Name: </label><input type="text" id="catName" value=""><br>
-      <label for="url">New Cat Link: </label><input type="text" id="catUrl" value=""><br>
-      <label for="clicks">New Cat Click Count: </label><input type="text" id="catClicks" value=""><br>
-      <button id="cancel-btn">Cancel</button>
-      <button id="save-btn">Save</button>
-    </form>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="js/jsScript.js"></script>
-  </body>
+<body>
+
+<div class="list-view"></div>
+
+<div class="display-area"></div>
+
+<div class="admin">
+	<button class="admin-btn">Admin</button><br>
+	<form class="admin-form">
+		<label for="name">Name</label>
+			<input type="text" id="name"><br>
+				<label for="imageURL">Image URL</label>
+			<input type="text" id="imageURL"><br>
+				<label for="clicks">Clicks</label>
+			<input type="text" id="clicks"><br>
+			<button class="save-btn">Save</button>
+			<button class="cancel-btn">Cancel</button>
+	</form>
+</div>
+
+<!-- list item partial -->
+<script type="text/template" data-template="cat-link">
+	<li class="cat-link" data-id="{{id}}">
+		<a href="#">{{name}}</a>
+	</li>
+</script>
+
+<!-- cat card partial -->
+<script type="text/template" data-template="display-area">
+	<div class="cat"
+		data-id="{{id}}"
+		data-name="{{name}}"
+		data-clicks="{{clicks}}">
+			<h2 class="name">{{name}}</h2>
+			<img src={{pic}} width="400" length="400">
+			<p class="clicks">{{clicks}}</p>
+	</div>
+</script>
+
+
+
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="js/jsScript.js"></script>
+</body>
 </html>
